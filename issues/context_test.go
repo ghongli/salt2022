@@ -11,19 +11,22 @@ func TestTimeoutDone(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(),1*time.Second)
 	defer cancel()
 	
-	handler := func(ctx context.Context, duration time.Duration) {
+	t.Run("timeout duration gt parent ctx", func(t *testing.T) {
+		go ctxTimeoutDone(ctx, 1500 * time.Millisecond)
+		
 		select {
 		case <-ctx.Done():
-			fmt.Println("handler", ctx.Err())
-		case <-time.After(duration):
-			fmt.Println("process request with", duration)
+			fmt.Println("main", ctx.Err())
 		}
-	}
+	})
 	
-	go handler(ctx, 500 * time.Millisecond)
+	t.Run("timeout duration lt parent ctx", func(t *testing.T) {
+		go ctxTimeoutDone(ctx, 500 * time.Millisecond)
+		
+		select {
+		case <-ctx.Done():
+			fmt.Println("main", ctx.Err())
+		}
+	})
 	
-	select {
-	case <-ctx.Done():
-		fmt.Println("main", ctx.Err())
-	}
 }
