@@ -91,7 +91,7 @@ build-$(1):
 ifeq ($(TARGET_ARCH),amd64)
 	$(DOCKER) build --build-arg PKG_FILES=* -f $(DOCKERFILE_DIR)/$(DOCKERFILE) $(BIN_PATH) -t $(HUB_REGISTRY)/$(DOCKER_IMAGE_PREFIX)$(1):$(REL_VERSION)-$(TARGET_OS)-$(TARGET_ARCH)
 else
-	-$(DOCKER) buildx create --use --name udarbuild
+	-$(DOCKER) buildx create --use --name appbuild
 	-$(DOCKER) run --rm --privileged multiarch/qemu-user-static --reset -p yes
 	$(DOCKER) build --build-arg PKG_FILES=* --platform $(DOCKER_IMAGE_PLATFORM) -f $(DOCKERFILE_DIR)/$(DOCKERFILE) $(BIN_PATH) -t $(HUB_REGISTRY)/$(DOCKER_IMAGE_PREFIX)$(1):$(REL_VERSION)-$(TARGET_OS)-$(TARGET_ARCH)
 endif
@@ -114,7 +114,7 @@ push-$(1):
 ifeq ($(TARGET_ARCH),amd64)
 	$(DOCKER) push $(HUB_REGISTRY)/$(DOCKER_IMAGE_PREFIX)$(1):$(REL_VERSION)-$(TARGET_OS)-$(TARGET_ARCH)
 else
-	-$(DOCKER) buildx create --use --name udarbuild
+	-$(DOCKER) buildx create --use --name appbuild
 	-$(DOCKER) run --rm --privileged multiarch/qemu-user-static --reset -p yes
 	$(DOCKER) build --build-arg PKG_FILES=* --platform $(DOCKER_IMAGE_PLATFORM) -f $(DOCKERFILE_DIR)/$(DOCKERFILE) $(BIN_PATH) -t $(HUB_REGISTRY)/$(DOCKER_IMAGE_PREFIX)$(1):$(REL_VERSION)-$(TARGET_OS)-$(TARGET_ARCH) --push
 endif
