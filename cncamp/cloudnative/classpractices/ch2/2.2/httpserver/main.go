@@ -15,8 +15,10 @@ import (
 )
 
 func main() {
+	versionEnvKey := "VERSION"
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", rootHandler)
+	mux.HandleFunc("/", middleware.Chain(rootHandler,
+		middleware.MDEnvVar(versionEnvKey), middleware.KnownMD(), middleware.StdoutClientInfo(), middleware.StdoutElapsedTime()))
 	mux.HandleFunc("/healthz", healthz)
 
 	// debug/pprof
@@ -26,7 +28,6 @@ func main() {
 	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
 
 	timeout := middleware.DefaultTimeout
-
 	srv := &http.Server{
 		Addr:         ":80",
 		Handler:      mux,
@@ -34,17 +35,17 @@ func main() {
 		WriteTimeout: timeout,
 	}
 
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGHUP, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, syscall.SIGHUP, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
 
 	go func() {
-		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("error bringing up listener: %v", err)
 		}
 	}()
 
-	<-sc
-	signal.Stop(sc)
+	<-done
+	signal.Stop(done)
 
 	if err := http.ListenAndServe(":80", mux); err != nil {
 		log.Fatal(err)
@@ -55,26 +56,25 @@ func main() {
 	defer cancel()
 
 	if err := srv.Shutdown(ctxShutDown); err != nil {
-		log.Fatalf("server shutdown failed: %v", err)
+		log.Panicf("server shutdown failed: %v", err)
 	}
 
 	log.Println("server shutdown gracefully")
 }
 
 func healthz(w http.ResponseWriter, _ *http.Request) {
-	_, err := io.WriteString(w, "ok\n")
+	_, err := io.WriteString(w, http.StatusText(http.StatusOK))
 	if err != nil {
 		_, _ = io.WriteString(w, err.Error())
 	}
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("entering root handler")
 	user := r.URL.Query().Get("user")
 	if user != "" {
 		_, _ = io.WriteString(w, fmt.Sprintf("hello [%s]\n", user))
 	} else {
-		_, _ = io.WriteString(w, "hello [stranger]\n")
+		_, _ = io.WriteString(w, "root path\n")
 	}
 	_, _ = io.WriteString(w, "== Details of the http request header: ==\n")
 	for k, v := range r.Header {
