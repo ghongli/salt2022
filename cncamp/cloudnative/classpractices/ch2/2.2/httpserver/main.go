@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -39,7 +40,7 @@ func main() {
 	signal.Notify(done, syscall.SIGHUP, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
 
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServe(); errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("error bringing up listener: %v", err)
 		}
 	}()
@@ -67,6 +68,7 @@ func healthz(w http.ResponseWriter, _ *http.Request) {
 	if err != nil {
 		_, _ = io.WriteString(w, err.Error())
 	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
