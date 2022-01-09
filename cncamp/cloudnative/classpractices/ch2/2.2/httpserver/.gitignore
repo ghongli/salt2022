@@ -1,0 +1,12 @@
+# BE SURE TO ALSO UPDATE .dockerignore!
+
+.idea/
+.DS_STORE
+
+build/
+
+.air/
+.env.local
+config/*.yaml
+config/crd/bases
+scripts/assets/generated_assets.go

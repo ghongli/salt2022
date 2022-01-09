@@ -1,0 +1,17 @@
+.idea/
+.DS_STORE
+
+# git
+.git/
+**/.gitattributes
+**/.gitignore
+
+# build tools
+build/
+
+# backend
+pkg/.air/
+pkg/cmd/assets/generated_assets.go
+
+# docs
+docs/
