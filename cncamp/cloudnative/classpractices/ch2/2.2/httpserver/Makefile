@@ -19,7 +19,7 @@ DOCS_DEPLOY_GIT_USER ?= git
 # Go build details                                                             #
 ################################################################################
 BASE_PACKAGE_NAME := github.com/ghongli/salt2022/cncamp/cloudnative/classpractices/ch2/2.2/httpserver
-RELEASE_NAME ?= server
+RELEASE_NAME ?= httpserver
 BINARIES ?= server
 VERSION ?= edge
 ifdef REL_VERSION

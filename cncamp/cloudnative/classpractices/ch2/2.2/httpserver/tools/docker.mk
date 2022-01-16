@@ -5,7 +5,7 @@ HUB_REGISTRY ?= ghongli/cncamp-cloudnative
 #TARGET_ARCH   ?= $(GOARCH)
 TARGET_OS     ?= linux
 TARGET_ARCH   ?= amd64
-REL_VERSION   = latest
+REL_VERSION   ?= latest
 ifeq ($(REL_VERSION),edge)
 	REL_VERSION := latest
 endif
@@ -20,15 +20,15 @@ DOCKERFILE ?= Dockerfile
 DOCKER_MULTI_ARCH=linux-amd64 linux-arm linux-arm64 windows-amd64
 
 # build docker image for linux
-BIN_PATH=$(OUT_DIR)/$(TARGET_OS)_$(TARGET_ARCH)
+BIN_PATH ?= $(OUT_DIR)/$(TARGET_OS)_$(TARGET_ARCH)
 
 ifeq ($(TARGET_OS), windows)
   DOCKERFILE:=Dockerfile-windows
   BIN_PATH := $(BIN_PATH)/release
 else ifeq ($(origin DEBUG), undefined)
-  BIN_PATH := $(BIN_PATH)/release
+#  BIN_PATH := $(BIN_PATH)/release
 else ifeq ($(DEBUG),0)
-  BIN_PATH := $(BIN_PATH)/release
+#  BIN_PATH := $(BIN_PATH)/release
 else
   DOCKERFILE:=Dockerfile-debug
   BIN_PATH := $(BIN_PATH)/debug
@@ -89,11 +89,11 @@ define genDockerImageBuild
 .PHONY: build-$(1)
 build-$(1):
 ifeq ($(TARGET_ARCH),amd64)
-	$(DOCKER) build --build-arg PKG_FILES=* -f $(DOCKERFILE_DIR)/$(DOCKERFILE) $(BIN_PATH) -t $(HUB_REGISTRY)/$(DOCKER_IMAGE_PREFIX)$(1):$(REL_VERSION)-$(TARGET_OS)-$(TARGET_ARCH)
+	$(DOCKER) build --build-arg PKG_FILES=* -f $(DOCKERFILE_DIR)/$(DOCKERFILE) $(BIN_PATH) -t $(HUB_REGISTRY)-$(1):$(REL_VERSION)-$(TARGET_OS)-$(TARGET_ARCH)
 else
 	-$(DOCKER) buildx create --use --name appbuild
 	-$(DOCKER) run --rm --privileged multiarch/qemu-user-static --reset -p yes
-	$(DOCKER) build --build-arg PKG_FILES=* --platform $(DOCKER_IMAGE_PLATFORM) -f $(DOCKERFILE_DIR)/$(DOCKERFILE) $(BIN_PATH) -t $(HUB_REGISTRY)/$(DOCKER_IMAGE_PREFIX)$(1):$(REL_VERSION)-$(TARGET_OS)-$(TARGET_ARCH)
+	$(DOCKER) build --build-arg PKG_FILES=* --platform $(DOCKER_IMAGE_PLATFORM) -f $(DOCKERFILE_DIR)/$(DOCKERFILE) $(BIN_PATH) -t $(HUB_REGISTRY)-$(1):$(REL_VERSION)-$(TARGET_OS)-$(TARGET_ARCH)
 endif
 endef
 
@@ -112,11 +112,11 @@ define genDockerImagePush
 .PHONY: push-$(1)
 push-$(1):
 ifeq ($(TARGET_ARCH),amd64)
-	$(DOCKER) push $(HUB_REGISTRY)/$(DOCKER_IMAGE_PREFIX)$(1):$(REL_VERSION)-$(TARGET_OS)-$(TARGET_ARCH)
+	$(DOCKER) push $(HUB_REGISTRY)-$(1):$(REL_VERSION)-$(TARGET_OS)-$(TARGET_ARCH)
 else
 	-$(DOCKER) buildx create --use --name appbuild
 	-$(DOCKER) run --rm --privileged multiarch/qemu-user-static --reset -p yes
-	$(DOCKER) build --build-arg PKG_FILES=* --platform $(DOCKER_IMAGE_PLATFORM) -f $(DOCKERFILE_DIR)/$(DOCKERFILE) $(BIN_PATH) -t $(HUB_REGISTRY)/$(DOCKER_IMAGE_PREFIX)$(1):$(REL_VERSION)-$(TARGET_OS)-$(TARGET_ARCH) --push
+	$(DOCKER) build --build-arg PKG_FILES=* --platform $(DOCKER_IMAGE_PLATFORM) -f $(DOCKERFILE_DIR)/$(DOCKERFILE) $(BIN_PATH) -t $(HUB_REGISTRY)-$(1):$(REL_VERSION)-$(TARGET_OS)-$(TARGET_ARCH) --push
 endif
 endef
 
@@ -134,9 +134,9 @@ manifest-create: check-docker-env $(CREATE_MANIFEST_APPS)
 define genDockerManifestCreate
 .PHONY: manifest-create-$(1)
 manifest-create-$(1):
-	$(DOCKER) manifest create $(HUB_REGISTRY)/$(DOCKER_IMAGE_PREFIX)$(1):$(REL_VERSION) $(DOCKER_MULTI_ARCH:%=$(HUB_REGISTRY)/$(DOCKER_IMAGE_PREFIX)$(1):$(REL_VERSION)-%)
+	$(DOCKER) manifest create $(HUB_REGISTRY)-$(1):$(REL_VERSION) $(DOCKER_MULTI_ARCH:%=$(HUB_REGISTRY)-$(1):$(REL_VERSION)-%)
 ifeq ($(LATEST_RELEASE),true)
-	$(DOCKER) manifest create $(HUB_REGISTRY)/$(DOCKER_IMAGE_PREFIX)$(1):$(LATEST_TAG) $(DOCKER_MULTI_ARCH:%=$(HUB_REGISTRY)/$(DOCKER_IMAGE_PREFIX)$(1):$(LATEST_TAG)-%)
+	$(DOCKER) manifest create $(HUB_REGISTRY)-$(1):$(LATEST_TAG) $(DOCKER_MULTI_ARCH:%=$(HUB_REGISTRY)-$(1):$(LATEST_TAG)-%)
 endif
 endef
 
@@ -154,9 +154,9 @@ manifest-push: manifest-create $(PUSH_MANIFEST_APPS)
 define genDockerManifestPush
 .PHONY: manifest-push-$(1)
 manifest-push-$(1):
-	$(DOCKER) manifest push $(HUB_REGISTRY)/$(DOCKER_IMAGE_PREFIX)$(1):$(REL_VERSION)
+	$(DOCKER) manifest push $(HUB_REGISTRY)-$(1):$(REL_VERSION)
 ifeq ($(LATEST_RELEASE),true)
-	$(DOCKER) manifest push $(HUB_REGISTRY)/$(DOCKER_IMAGE_PREFIX)$(1):$(LATEST_TAG)
+	$(DOCKER) manifest push $(HUB_REGISTRY)-$(1):$(LATEST_TAG)
 endif
 endef
 
