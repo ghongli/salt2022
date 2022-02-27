@@ -19,6 +19,8 @@ spec:
       labels:
         app: httpserver
     spec:
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
       containers:
         - name: httpserver
           image: ghongli/cncamp-cloudnative-httpserver:v1.0
@@ -28,6 +30,12 @@ spec:
             postStart:
               exec:
                 command: ['/bin/sh', '-c', 'echo httpserver started!']
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            failureThreshold: 3
+            periodSeconds: 5
           readinessProbe:
             httpGet:
               scheme: HTTP
@@ -35,13 +43,22 @@ spec:
               port: 8080
             initialDelaySeconds: 3
             periodSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 5
           livenessProbe:
             httpGet:
               scheme: HTTP
               path: /healthz
               port: 8080
+              httpHeaders:
+                - name: HEALTHZ-Header
+                  value: Awesome-Healthz
             initialDelaySeconds: 10
             periodSeconds: 30
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 5
           resources:
             requests:
               cpu: 100m
