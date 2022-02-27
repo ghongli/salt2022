@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: httpserver-gateway
+  annotations:
+    kubernetes.io/ingress.allow-http: 'false'
+spec:
+  tls:
+    - hosts:
+        - httpserver.com
+      secretName: httpserver-tls
+  rules:
+    - host: httpserver.com
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: httpserver-service
+                port:
+                  number: 80
