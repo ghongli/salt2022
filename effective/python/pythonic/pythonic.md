@@ -131,5 +131,7 @@ sys.version_info(major=3, minor=7, micro=3, releaselevel='final', serial=0)
 [2]: https://wwww.pylint.org/ "一款流行的 Python 源码静态分析工具"
 [3]: https://onebigfluke.com "Slatkin 个人网站"
 [4]: https://github.com/bslatkin/effectivepython
+[5]: https://github.com/bslatkin/effectivepython/tree/master/example_code "Effective Python: Second Edition ExampleCode"
+[6]: https://effectivepython.com/ "Effective Python: Second Edition"
 
 > 2021/03/04 Katio
