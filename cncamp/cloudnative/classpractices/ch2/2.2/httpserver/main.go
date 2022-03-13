@@ -23,11 +23,11 @@ import (
 )
 
 var (
-	addr         = flag.String("addr", ":80", "address to listen")
-	version      = flag.String("version", "v1.0.0", "version for httpserver")
-	shutdownTime = flag.Int("shutdown_time", 15, "shutdownTime for httpserver")
-	logFile      = flag.String("log_file", "httpserver.log", "log_file for httpserver")
-	logLevel     = flag.String("log_level", "INFO", "log_level for httpserver")
+	addr         = flag.String("ADDR", ":80", "address to listen")
+	version      = flag.String("VERSION", "v1.0.0", "version for httpserver")
+	shutdownTime = flag.Int("GRACE_TIMEOUT", 15, "shutdownTime for httpserver")
+	logFile      = flag.String("LOG_FILE", "httpserver.log", "log_file for httpserver")
+	logLevel     = flag.String("LOG_LEVEL", "INFO", "log_level for httpserver")
 )
 
 func main() {
