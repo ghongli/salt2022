@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ghongli/salt2022/cncamp/cloudnative/classpractices/ch2/2.2/httpserver/utils"
+	"go.uber.org/zap"
 )
 
 type (
@@ -34,7 +35,7 @@ func KnownMD() MiddlewareFunc {
 					if len(respVal) != 0 {
 						values = append(values, respVal...)
 					}
-					w.Header().Set(k, strings.Join(values, ";"))
+					w.Header().Add(k, strings.Join(values, ";"))
 				}
 			}
 
@@ -85,4 +86,42 @@ func StdoutElapsedTime() MiddlewareFunc {
 			next(w, r)
 		}
 	}
+}
+
+func Logger(logger *zap.Logger) MiddlewareFunc {
+	return func(next http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			rw := wrapperResponseWriter(w)
+
+			next(rw, r)
+
+			logger.Sugar().Infof("client real ip: %s, response status code: %d", utils.ExtractAddrFromRequest(r).Addr, rw.statusCode)
+		}
+	}
+}
+
+type (
+	// 原生 http.ResponseWriter 会被拦截，不会返回给用户处理，因此也拿不到 http 返回的响应码
+	responseWriter struct {
+		w http.ResponseWriter
+
+		statusCode int
+	}
+)
+
+func (w *responseWriter) Header() http.Header {
+	return w.w.Header()
+}
+
+func (w *responseWriter) Write(buffer []byte) (int, error) {
+	return w.w.Write(buffer)
+}
+
+func (w *responseWriter) WriteHeader(statusCode int) {
+	w.statusCode = statusCode
+	w.w.WriteHeader(statusCode)
+}
+
+func wrapperResponseWriter(w http.ResponseWriter) *responseWriter {
+	return &responseWriter{w: w}
 }
