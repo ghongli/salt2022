@@ -1,0 +1,32 @@
+---
+- name: example
+  hosts: "{{ subset|default('all') }}"
+  gather_facts: no
+  serial: "{{ serial_num|default(1) }}"
+
+  pre_tasks:
+    - name: setup for example
+      setup:
+        gather_subset:
+          - "!all"
+          - "!min"
+          - "distribution"
+          - "kernel"
+          - "python"
+          - "python_version"
+
+    - name: check host info for example
+      fail:
+        msg: "{{ ansible_facts['distribution'] }}-{{ ansible_facts['kernel'] }}, python-{{ ansible_facts['python_version'] }} not supported"
+      when:
+        - not (ansible_facts.distribution == 'CentOS')
+        - not ((ansible_facts.python_version | regex_search("^2\\.[67]") is not none)
+
+    - name: create file storage directory for global
+      file:
+        state: directory
+        mode: 0755
+        dest: "{{ files_storage_path }}"
+
+  roles:
+    - role: example
