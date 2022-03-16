@@ -88,6 +88,7 @@ Ansible 社区，复用的基本单元是模块。由于模块的功能范围非
 [20]: https://github.com/ansiblebook/ansiblebook "Ansible: Up and Running, Second Edition"
 [21]: https://github.com/lorin/ansible-quickref "简明参考手册"
 [22]: http://www.slideshare.net/JesseKeating/ansiblefest-rax "使用 Ansible 管理可伸缩的公有云"
+[23]: https://docs.ansible.com/ansible/2.9/user_guide/playbooks_best_practices.html "Best Practices"
 
 [30]: https://groups.google.com/g/ansible-project/c/WpRblldA2PQ/m/lYDpFjBXDlsJ "幂等性、收敛性以及那些我们说烂了的 “高达上” 术语"
 
