@@ -133,5 +133,6 @@ sys.version_info(major=3, minor=7, micro=3, releaselevel='final', serial=0)
 [4]: https://github.com/bslatkin/effectivepython
 [5]: https://github.com/bslatkin/effectivepython/tree/master/example_code "Effective Python: Second Edition ExampleCode"
 [6]: https://effectivepython.com/ "Effective Python: Second Edition"
+[7]: https://pypi.org/ "PyPI 官网"
 
 > 2021/03/04 Katio
