@@ -5,6 +5,8 @@ RUN CGO_ENABLED=0 go get -ldflags '-s -w -extldflags -static' github.com/go-delv
 
 WORKDIR /go/src/github.com/ghongli/salt2022/cncamp/cloudnative/classpractices/ch12/service1
 COPY .. .
+RUN go mod init
+RUN make tidy
 RUN make build
 
 FROM ghongli/alpine:3 as alpine

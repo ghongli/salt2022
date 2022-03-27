@@ -32,12 +32,15 @@ DEFAULT_LDFLAGS += -X "$(BASE_PACKAGE_NAME)/main.commit=$(GIT_COMMIT)"
 DEFAULT_LDFLAGS += -X "$(BASE_PACKAGE_NAME)/main.goVersion=$(shell go version | sed -E 's/go version go(.*)\ .*/\1/')"
 DEFAULT_BUILDTAGS ?= app
 
-YARN:=./build/bin/yarn.sh
 PROJECT_ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 .PHONY: help # Print this help message.
  help:
 	@grep -E '^\.PHONY: [a-zA-Z_-]+ .*?# .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = "(: |#)"}; {printf "%-30s %s\n", $$2, $$3}'
+
+.PHONY: tidy # up the go modules
+tidy:
+	$(GO) mod tidy
 
 ################################################################################
 # Target: code build and archive                                               #
