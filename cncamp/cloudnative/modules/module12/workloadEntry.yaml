@@ -1,0 +1,27 @@
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: details-svc
+spec:
+  hosts:
+    - details.bookinfo.com
+  location: MESH_INTERNAL
+  ports:
+    - name: http
+      number: 80
+      protocol: HTTP
+  resolution: STATIC
+  workloadSelector:
+    labels:
+      app: details-legacy
+---
+apiVersion: networking.istio.io/v1beta1
+kind: WorkloadEntry
+metadata:
+  name: details-svc
+spec:
+  serviceAccount: details-legacy
+  address: 2.2.2.2
+  labels:
+    app: details-legacy
+    instance-id: vm1

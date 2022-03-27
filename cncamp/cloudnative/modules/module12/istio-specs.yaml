@@ -1,0 +1,95 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: reviews
+spec:
+  host: reviews
+  trafficPolicy:
+    loadBalancer:
+      simple: RANDOM
+  subsets:
+    - name: v1
+      labels:
+        version: v1
+    - name: v2
+      labels:
+        version: v2
+      trafficPolicy:
+        loadBalancer:
+          simple: ROUND_ROBIN
+    - name: v3
+      labels:
+        version: v3
+---
+kind: DestinationRule
+metadata:
+  name: httpbin
+spec:
+  host: httpbin
+  trafficPolicy:
+    # 断路器：连接数和请求数限制定义简单的断路器
+    connectionPool:
+      tcp:
+        maxConections: 1
+      http:
+        http1MaxPendingRequests: 1
+        maxRequestsPerConnection: 1
+    # 异常检测：自定义健康检查模式
+    outlierDetection:
+      consecutiveErrors: 1
+      interval: 1s
+      baseEjectionTime: 3m
+      maxEjectionPercent: 100
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: service0
+spec:
+  gateways:
+    - service0
+  hosts:
+    - '*'
+  http:
+    - match:
+#        method1: k8s label
+#        sourceLabels:
+#          app: reviews
+#        method2: headers
+#        - headers:
+#            end-user:
+#                exact: sample
+#        method3: uri
+        - uri:
+#            prefix: /api/v1
+            exact: /service0
+      route:
+        - destination:
+            host: service0
+            subset: v1
+            port:
+              number: 80
+          weight: 100
+      timeout: 15s
+      retries:
+        attempts: 3
+        perTryTimeout: 2ss
+#      (fire and forget 模式)截取所有 request，并在转发的同时，将 request 转发至 mirror 版本，同时在 header Host/Authority 加上 -shadow
+#      mirror:
+#        host: pbin
+#        subset: v2
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: service0
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - hosts:
+        - '*'
+      port:
+        name: http-service0
+        number: 80
+        protocol: HTTP
