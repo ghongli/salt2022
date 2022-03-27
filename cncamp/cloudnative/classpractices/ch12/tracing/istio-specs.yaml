@@ -1,0 +1,43 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: service0
+spec:
+  gateways:
+    - service0
+  hosts:
+    - httpsserver.cncamp.io
+  http:
+    - match:
+        - uri:
+            exact: /http/service0
+      rewrite:
+        uri: /service0
+      route:
+        - destination:
+            host: service0
+            port:
+              number: 80
+          weight: 100
+      timeout: 15s
+      retries:
+        attempts: 3
+        perTryTimeout: 2s
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: service0
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - hosts:
+        - httpsserver.cncamp.io
+      port:
+        name: http-service0
+        number: 443
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        credentialName: cncamp-credential
