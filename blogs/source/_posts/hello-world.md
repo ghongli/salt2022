@@ -5,6 +5,18 @@ Welcome to [Hexo](https://hexo.io/)! This is your very first post. Check [docume
 
 ## Quick Start
 
+### Install `hexo`
+
+```shell
+$ npm install hexo-cli -g
+$ hexo init blog
+$ cd blog
+$ npm install
+$ hexo server
+```
+
+
+
 ### Create a new post
 
 ``` bash
