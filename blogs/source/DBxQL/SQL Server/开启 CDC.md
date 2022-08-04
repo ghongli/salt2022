@@ -5,6 +5,7 @@ SQL Server 开启 CDC 详细过程
 ### 示例数据
 
 ```sql
+-- 执行批处理
 SELECT DB_NAME();  
 SELECT USER_NAME();  
 GO 2 
@@ -180,6 +181,7 @@ FROM [example].[cdc].[insurance_test_CT]
    ```sql
    -- 禁用 CDC
    use example
+   
    go
    EXEC sys.sp_cdc_disable_table
    @source_schema = N'insurance',
