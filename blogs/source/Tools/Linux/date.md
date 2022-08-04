@@ -3,6 +3,8 @@ Linux - 时间(date 设置系统时间)
 ---
 
 > date: 以给定的格式显示当前的时间，或设置系统时间；
+>
+> crontab -e -> `* */1 * * * ntpdate -u ntp1.aliyun.com`
 
 1. 命令参数
 
