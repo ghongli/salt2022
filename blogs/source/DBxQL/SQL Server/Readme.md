@@ -115,6 +115,17 @@ DBCC USEROPTIONS
    SET @from_lsn = sys.fn_cdc_get_min_lsn('dbo_Transactions');  
    SET @to_lsn   = sys.fn_cdc_get_max_lsn();  
    SELECT * FROM cdc.fn_cdc_get_all_changes_dbo_Transactions (@from_lsn, @to_lsn, N'all');
+   
+   -- 更改数据保留
+   -- EXECUTE sys.sp_cdc_change_job;
+   -- 更改数据保留时间
+   EXECUTE sys.sp_cdc_change_job @job_type = N'cleanup', @retention=50;
+   -- 停用作业
+   EXEC sys.sp_cdc_stop_job @job_type = N'cleanup';
+   -- 启用作业
+   EXEC sys.sp_cdc_start_job @job_type = N'cleanup';
+   -- 再次查看
+   EXEC sp_cdc_help_jobs;
    ```
 
    
