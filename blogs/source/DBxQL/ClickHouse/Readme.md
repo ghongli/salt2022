@@ -5,6 +5,8 @@ ClickHouse
 > [ClickHouse][0], [Docs][1], [DockerHub][2], [ClickHouse Github, [clickhouse-go]][4]
 >
 > [ClickHouse blog][5] , [clickhouse-presentations meetup...][7]
+>
+> [ClickHouse cnblogs 文章][9]
 
 ### What is ClickHouse
 
@@ -150,4 +152,4 @@ ClickHouse® is a column-oriented database management system (DBMS) for online a
 [6]: https://clickhouse.com/blog/how-quickcheck-uses-clickhouse-to-bring-banking-to-the-unbanked "how quickcheck uses clickhouse to bring banking to the unbanked"
 [7]: https://github.com/ClickHouse/clickhouse-presentation "clickhouse-presentations"
 [8]: https://packages.clickhouse.com "clickhouse install packages"
-
+[9]: https://www.cnblogs.com/MrYang-11-GetKnow/category/2096220.html "clickhouse cnblogs"
