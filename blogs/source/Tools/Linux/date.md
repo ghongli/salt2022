@@ -44,6 +44,7 @@ Linux - 时间(date 设置系统时间)
    
    date -s "2019-05-29 10:58:00"    //设置时候，尽量比当前时间快1分钟
    date -s 10:58:00
+   timedatectl set-time 08:30:00
    
    date --date=20140506 +%s // 获取一个特定时间的unix时间戳
    date +%s // 获取当前时间的unix时间戳
