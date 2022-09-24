@@ -142,7 +142,7 @@ while(sh.isBalancerRunning()) {
 
 #### 幂等 Idempotency
 
-### Downgrade the feature compatibility
+##### Downgrade the feature compatibility
 
 ```shell
 # disable cluster-to-cluster replication and use write blocking
@@ -164,7 +164,7 @@ db.adminCommand( {
 } )
 ```
 
-#### Flush
+##### Flush
 
 ```shell
 # forces to flush all pending writes from the storage layer to disk and locks the entire mongod instance to prevent additional writes until the user releases the lock with a corresponding fsyncUnlock.
@@ -209,6 +209,12 @@ serverIsLocked();
 ```
 
 
+
+### 备份和恢复
+
+> [`mongodump`](https://www.mongodb.com/docs/database-tools/mongodump/#mongodb-binary-bin.mongodump) and [`mongorestore`](https://www.mongodb.com/docs/database-tools/mongorestore/#mongodb-binary-bin.mongorestore) **cannot** be part of a backup strategy for 4.2+ sharded clusters that have sharded transactions in progress, as backups created with [`mongodump`](https://www.mongodb.com/docs/database-tools/mongodump/#mongodb-binary-bin.mongodump) *do not maintain* the atomicity guarantees of transactions across shards.
+>
+> To capture a point-in-time backup from a sharded cluster you **must** stop *all* writes to the cluster. On a running production system, you can only capture an *approximation* of point-in-time snapshot.
 
 
 
