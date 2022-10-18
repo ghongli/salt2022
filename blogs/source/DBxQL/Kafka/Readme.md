@@ -130,7 +130,11 @@ listeners=PLAINTEXT://:9092
 advertised.listeners=PLAINTEXT://外网ip:9092
 ```
 
+#### Kafka No serviceName defined in either JAAS or Kafka config
 
+##### [Kafka SASL_SSL Authentication Configuration][5]
+
+##### 
 
 [0]: https://kafka.apache.org/27/documentation.html "Kafka 2.7 Documentation"
 [1]: https://rmoff.net/2018/08/02/kafka-listeners-explained/	"Kafka Listeners - Explained"
@@ -138,3 +142,5 @@ advertised.listeners=PLAINTEXT://外网ip:9092
 [2]: https://digitalis.io/blog/kafka/kafka-topic-time-based-retention-policies/ "confirming kafka topic time based retention policies"
 [3]: https://www.conduktor.io/kafka/kafka-topic-configuration-log-retention "kafka topic configuration: log retention"
 [4]: https://www.conduktor.io/kafka/kafka-topics-internals-segments-and-indexes "kafka topic internals: segments and indexes"
+[5]: https://docs.vmware.com/en/VMware-Smart-Assurance/10.1.0/sa-ui-installation-config-guide-10.1.0/GUID-DF659094-60D3-4E1B-8D63-3DE3ED8B0EDF.html "Kafka SASL_SSL Authentication Configuration"
+
