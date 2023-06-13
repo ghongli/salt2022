@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package APP.healthcheck.v1;
+
+option go_package = "github.com/ghongli/salt2022/cncamp/cloudnative/classpractices/ch2/2.2/httpserver/pkg/api/healthcheck/v1;healthcheckv1";
+
+import "google/api/annotations.proto";
+
+import "api/v1/annotations.proto";
+
+service HealthzAPI {
+  rpc Healthz(HealthcheckRequest) returns (HealthcheckResponse) {
+    option (google.api.http) = {
+      get : "/v1/healthz"
+
+      additional_bindings : {get : "/healthcheck"}
+    };
+
+    option (api.v1.action).name = "/v1/healthcheck";
+    option (api.v1.action).type = READ;
+    option (api.v1.disable_audit) = true;
+  }
+}
+
+message HealthcheckRequest {
+}
+
+message HealthcheckResponse {
+}

@@ -220,7 +220,29 @@ serverIsLocked();
 
 
 
+### 节点 RECOVERING 状态下恢复处理
+
+参考官方文档：[resync replica set member][3]，注意：集群中需要大多数节点是正常且健康的，如PSS架构下，三个节点，至少两个正常。
+
+节点 mongod 服务挂掉太久，或网络等原因，导致此节点上的数据与其他节点差太多，远远落后于集群的其他成员，处理步骤：
+
+1. 在恢复节点上，确认保存数据的路径，通常在 mongod.yml `processManagement.storage.dbPath` 或进程参数指定
+
+2. mongo shell 仅连接到恢复节点，使用 db.shutdownServer() 停止服务，备份节点上的数据：`mv db_data db_data_bak`
+
+3. 创建数据目录 `db_data`，使用 mongod -f xx 重新启动
+
+4. 等节点自己从主节点同步数据，自动会变为从
+
+5. 使用 rs.status() 确认节点的 uptime 在线时间, optime 数据同步过来的时间，或 mongodb 日志文件中，确认数据同步进度，关键词：`Progress: 42016400/45634357 92%`
+
+   
+
+
+
 [0]: https://www.mongodb.com/ "mongodb"
 [1]: https://www.mongodb.com/docs/	"mongodb docs"
 [2]: https://www.mongodb.com/docs/manual/reference/command/ "reference command"
+
+[3]: https://www.mongodb.com/docs/v4.2/tutorial/resync-replica-set-member/ "resync replicaSet member"
 

@@ -1,0 +1,16 @@
+{
+  "version": "v1beta1",
+  "lint": {
+    "use": [
+      "DEFAULT"
+    ],
+    "except": [
+      "ENUM_VALUE_PREFIX",
+      "PACKAGE_DIRECTORY_MATCH",
+      "PACKAGE_LOWER_SNAKE_CASE",
+      "FIELD_LOWER_SNAKE_CASE"
+    ],
+    "service_suffix": "API",
+    "enum_zero_value_suffix": "UNSPECIFIED"
+  }
+}

@@ -161,6 +161,8 @@ DBCC USEROPTIONS
    ```sql
    # 根据 lsn 编号在 cdc 表里查询，但查询结果出来是 NULL，说明 LSN 被清理了：
    SELECT sys.fn_cdc_map_lsn_to_time(cast('AAAEaQAANGAABQ==' as xml).value('xs:base64Binary(.)', 'varbinary(max)'));
+   // hex 串信息
+   SELECT sys.fn_cdc_map_lsn_to_time(cast('00018d58000048990001' as xml).value('xs:hexBinary(.)', 'varbinary(max)'));
    
    # lsn 估计被清理了，使用 EXEC sp_cdc_help_jobs 确认 cleanup retention，结果是 4320分钟(三天)，且没有做过手动清理；
    EXEC sp_cdc_help_jobs;

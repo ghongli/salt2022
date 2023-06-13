@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package APP.conf.gateway.v1;
+
+option go_package = "github.com/ghongli/salt2022/cncamp/cloudnative/classpractices/ch2/2.2/httpserver/pkg/api/conf/gateway/v1;gatewayv1";
+
+import "google/protobuf/any.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/wrappers.proto";
+import "validate/validate.proto";
+
+message Conf {
+  GatewayOptions gateway = 1 [(validate.rules).message = {required : true}];
+
+  repeated Service services = 2;
+  repeated Module modules = 4;
+
+  // External conf files to extend and compose into a consolidated conf.
+  repeated string extends = 9;
+}
+
+message GatewayOptions {
+  Listener listener = 1 [(validate.rules).message = {required : true}];
+  Listener json_grpc_loopback_listener = 2;
+
+  Timeouts timeouts = 5;
+
+  repeated Middleware middleware = 6;
+
+  bool enable_pprof = 8;
+
+  // a gRPC response (before transcoding to JSON) Maximum. Default 4MB (i.e. 4194304 bytes).
+  uint32 max_response_size_bytes = 10;
+
+  // whether the cookies should be sent with the 'Secure' flag. Default value is true.
+  google.protobuf.BoolValue secure_cookies = 11;
+}
+
+message Listener {
+  oneof socket {
+    option (validate.required) = true;
+
+    TCPSocket tcp = 1;
+  }
+}
+
+message TCPSocket {
+  string address = 1 [(validate.rules).string = {min_bytes : 1}];
+  uint32 port = 2 [(validate.rules).uint32 = {lte : 65535}];
+  bool secure = 3;
+}
+
+message Timeouts {
+  // default timeout to apply all requests.
+  google.protobuf.Duration default = 1 [(validate.rules).duration = {
+    required : true,
+    gte : {seconds : 1},
+  }];
+
+  message Entry {
+    string service = 1;
+    string method = 2;
+    google.protobuf.Duration timeout = 3 [(validate.rules).duration = {
+      required : true,
+      gte : {seconds : 1},
+    }];
+  }
+
+  repeated Entry overrides = 2;
+}
+
+message Middleware {
+  string name = 1 [(validate.rules).string = {min_bytes : 1}];
+  google.protobuf.Any typed_config = 2;
+}
+
+message Service {
+  string name = 1 [(validate.rules).string = {min_bytes : 1}];
+  google.protobuf.Any typed_config = 2;
+}
+
+message Module {
+  string name = 1 [(validate.rules).string = {min_bytes : 1}];
+  google.protobuf.Any typed_config = 2;
+}

@@ -18,6 +18,13 @@ select * from information_schema.innodb_trx\G;
 
 -- 查看进程
 select * from information_schema.processlist\G;
+select ID, HOST, DB, COMMAND, TIME, USER, STATE from information_schema.processlist;
+select ID, HOST, DB, COMMAND, TIME, USER, STATE from information_schema.processlist where COMMAND != 'Sleep';
+select ID, HOST, DB, COMMAND, TIME, USER, STATE from information_schema.processlist where COMMAND = 'Sleep';
+select ID, HOST, DB, COMMAND, TIME, USER, STATE from information_schema.processlist where HOST like '10.10.240.0%';
+
+-- 查看版本
+select @@version;
 
 show binary logs;
 
@@ -29,6 +36,15 @@ show index from tb1;
 show variables;
 show variables like '%char';
 show variables like 'character%';
+
+-- innodb_large_prefix：对于使用REDUNDANT或COMPACT行格式的InnoDB表，索引键前缀长度限制为767字节
+-- ERROR 1071 (42000): Specified key was too long; max key length is 767 bytes
+show variables like 'innodb_large_prefix';
+-- 生效条件
+-- 避免在主服务器上启用enable innodb_large_prefix，适用于索引键前缀的限制也适用于全列索引键。
+-- 系统变量innodb_large_prefix为ON；系统变量innodb_file_format为Barracuda；ROW_FORMAT为DYNAMIC或COMPRESSED
+set global innodb_large_prefix=on;
+set global innodb_file_format=Barracuda;
 
 -- 查看SQL语句的执行计划
 explain select * from tb1 where name='testname';

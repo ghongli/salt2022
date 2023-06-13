@@ -1,0 +1,8 @@
+listener:
+  tcp:
+    address: 0.0.0.0
+    port: 80
+    secure: false
+timeouts:
+  default: 15s
+enable_pprof: true
