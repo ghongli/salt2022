@@ -12,6 +12,8 @@ Vim Skips
 
    ```shell
    :set pastetoggle=<F5>
+   :set nu!
+   :set nu
    ```
 
 1. 快捷键
