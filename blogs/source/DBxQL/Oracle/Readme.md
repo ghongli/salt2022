@@ -28,8 +28,29 @@ Oracle
    
    # 查看 dump 文件的字符集
    select nls_charset_name(to_number('0354','xxxx')) from dual;
+   
+   # 删除logminer中的输出，仅保留PK与全字段
+   alter table ODS_KY.HS_ACCOUNTS_MAIN drop supplemental log group GGS_16290 ;
+   alter table ODS_KY.HS_ACCOUNTS_MAIN drop SUPPLEMENTAL LOG DATA (FOREIGN KEY) COLUMNS;
+   alter table ODS_KY.HS_ACCOUNTS_MAIN drop SUPPLEMENTAL LOG DATA (UNIQUE) COLUMNS;
+   
+   # 查看 logminer 的设置
+   select supplemental_log_data_min min, supplemental_log_data_pk pk, supplemental_log_data_ui ui, supplemental_log_data_fk fk, supplemental_log_data_all allc from v$database;
+   select * from all_log_groups where where TABLE_NAME = 'HS_ACCOUNTS_MAIN';
    ```
 
    
 
-2. 
+2. scn、时间转换
+
+   ```sql
+   # 时间转换为 scn
+   select timestamp_to_scn(to_timestamp('2021-12-21 08:00:00','YYYY-MM-DD HH24:MI:SS')) as scn from dual;
+   
+   # scn 转换为时间
+   select scn_to_timestamp(9389752548) scn from dual;
+   ```
+
+   
+
+3. 
