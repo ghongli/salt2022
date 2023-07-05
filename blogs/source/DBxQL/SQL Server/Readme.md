@@ -159,6 +159,7 @@ DBCC USEROPTIONS
 2. cdc lsn 信息查询及备份
 
    ```sql
+   # lsn 信息转时间
    # 根据 lsn 编号在 cdc 表里查询，但查询结果出来是 NULL，说明 LSN 被清理了：
    SELECT sys.fn_cdc_map_lsn_to_time(cast('AAAEaQAANGAABQ==' as xml).value('xs:base64Binary(.)', 'varbinary(max)'));
    // hex 串信息
