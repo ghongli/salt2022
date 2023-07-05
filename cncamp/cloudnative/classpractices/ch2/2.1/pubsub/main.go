@@ -1,5 +1,5 @@
-package main
+package pubsub
 
 func main() {
-	$END$
+	
 }
