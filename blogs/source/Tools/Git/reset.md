@@ -1,9 +1,27 @@
 ---
-title: git reset 回退提交
+title: git reset 回退/撤销提交
 date: 2022-03-16 19:31:10
 ---
 
 [TOC]
+
+### 经常这样提交
+
+```shell
+git add . // 添加所有修改过的文件待提交
+git commit -m "xxx" // 提交到本地仓库
+git fetch // fetch 远端代码
+git rebase origin/main // 推到远端前，拉取远端代码进行合并
+git push // 推送到远程分支
+```
+
+### 执行 commit 后，撤销提交到本地的 commit
+
+```shell
+git reset --soft HEAD^  // 撤销commit 代码改变仍然保留
+// HEAD^ 表示回到上一个版本（在push之前你可能有多次commit），也可以写成DEAD~1
+// 如果进行了2次的commit 都想撤回  可以使用HEAD~2
+```
 
 ### `git reflog`
 
@@ -26,7 +44,7 @@ Git 中，`HEAD` 表示当前版本，也就是最新的一次提交，上一个
 
 #### `--soft`
 
-不删除工作区改动代码，撤销 `commit`，但不撤销 `git add .`，即 `git status`是绿色的状态。
+不删除工作区改动代码，撤销 `commit`，但保留(不撤销) `git add .`，即 `git status`是绿色的状态。
 
 ```shell
 git reset --soft HEAD^
@@ -37,6 +55,7 @@ git reset --soft HEAD^
 重置索引，但不重置工作树，更改后的文件标记为未提交(`git add`)的状态，即不删除工作区改动代码，撤销 `commit`，撤销 `git add .`，是默认参数。
 
 ```shell
+# 效果一样
 git reset --mixed HEAD^
 # default op
 git reset HEAD^
