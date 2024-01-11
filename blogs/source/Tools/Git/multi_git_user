@@ -1,0 +1,94 @@
+# 配置多个 git 账号
+
+## 配置多个git账号，整体流程
+
+- 清空默认的全局 user.name, user.email
+- 为不同的git账号生成不同的ssh-key
+- 将生成的ssh-key分别添加到ssh-agent信任列表
+- 添加以上的公钥到git账号的ssh-key中
+- 在~/.ssh/config文件配置多个ssh-key信息
+- 测试
+
+## 配置
+
+1. 清空默认的全局 user.name, user.email
+
+```
+git config --list
+git config --global --unset user.name
+git config --global --unset user.email
+```
+
+2. 为不同的git账号生成不同的ssh-key
+
+> id_ras 是默认的文件名称，需要生成不同的ssh-key，所以要设置不同的文件名，如工作的账号：id_ras_work
+
+```
+ssh-keygen -t id_ras_github -C "xxx@xx.com"
+ssh-keygen -t 2024_id_ras_gitlab_work -C "xxx@company.com" -b 4096
+```
+
+3. 将生成的ssh-key分别添加到ssh-agent信任列表
+
+```
+ssh-add ~/.ssh/id_ras_github
+ssh-add ~/.ssh/2024_id_ras_gitlab_work
+```
+
+4. 添加以上的公钥到git账号的ssh-key中
+
+```
+# 复制公钥，在github,gitlab等的个人设置中配置ssh-key
+# mac
+pbcopy < ~/.ssh/2024_id_ras_github
+pbcopy < ~/.ssh/2024_id_ras_gitlab_work
+```
+
+5. 在~/.ssh/config文件配置多个ssh-key信息
+
+```
+# 配置 ~/.ssh/config 文件，如果没有就 touch 一个
+# ssh-keygen -t rsa -C "your.email@example.com" -b 4096
+# ssh-keygen -t id_ras_company -C "xxx@company.com"
+
+# ssh-add ~/.ssh/id_ras_github
+
+# 测试 ssh -T git@github.com
+Host gitlab.xx.com
+Hostname gitlab.xx.com
+IdentityFile ~/.ssh/2024_id_rsa_gitlab_work
+User xxx
+
+# github.com
+Host github.com
+Hostname github.com
+IdentityFile ~/.ssh/id_rsa
+User xxx
+
+Host *
+ControlMaster auto
+ControlPath ~/.ssh/master-%r@%h:%p
+```
+
+6. 测试
+
+> 测试：ssh -T git@{config里面的user}.xxx主机名
+
+```
+ssh -T git@xxx.github.com
+```
+
+```
+# 说明成功
+Hi user.name！ You've successfully authenticated.but github.com does not provide shell acess
+```
+
+## 注意
+
+> 在不同的代码仓库进行代码提交时，记得检查用户名和邮箱，以免混淆。
+> push 时，提示邮箱地址不正确时，是有规则对提交的邮箱地址做检查，先确认commit信息中的邮箱地址，是不是正确的或对应远端需要使用的。如果有问题，就是使用`git reset --soft HEAD^`回撤。
+
+```
+git config --local user.name xxx
+git config --local user.email xxx@xxx.com
+```
