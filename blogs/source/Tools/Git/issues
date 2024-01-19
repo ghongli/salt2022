@@ -1,0 +1,28 @@
+# issues
+
+## kex_exchange_identification: Connection closed by remote host [#55269](https://github.com/orgs/community/discussions/55269)
+
+```text
+kex_exchange_identification: Connection closed by remote host
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+```
+
+### 解决方法
+
+```shell
+vim ~/.ssh/config
+Host github.com
+  Hostname ssh.github.com
+  IdentityFile "~/.ssh/id_rsa"
+  TCPKeepAlive yes
+  Port 443
+  User git
+```
+
+```shell
+ssh -Tv -p 22 git@github.com
+ssh -Tv -p 443 git@github.com
+```
