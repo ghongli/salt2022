@@ -245,4 +245,8 @@ serverIsLocked();
 [2]: https://www.mongodb.com/docs/manual/reference/command/ "reference command"
 
 [3]: https://www.mongodb.com/docs/v4.2/tutorial/resync-replica-set-member/ "resync replicaSet member"
+[4]: https://docs.mongodb.com/manual/tutorial/change-oplog-size/ "如何更改oplog的大小"
+[5]: https://docs.mongodb.com/manual/tutorial/convert-standalone-to-replica-set/ "如何将单节点转为复制集"
+[6]: https://docs.mongodb.com/manual/reference/method/sh.stopBalancer/ "如何停止平衡器"
+[7]: https://docs.mongodb.com/manual/reference/command/cleanupOrphaned/ "如何清理孤儿文档(cleanOrphan命令)"
 
