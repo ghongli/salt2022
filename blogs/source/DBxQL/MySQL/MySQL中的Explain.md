@@ -50,20 +50,40 @@ explain select now() from dual;
 ## 概述
 
 |字段|说明|
-|;---|;---;|
+| :--- | :--- |
 |id|每个被独立执行的操作标识，标识对象被操作的顺序；id值越大，先被执行；如果相同，可以认为是一组，执行顺序从上到下；如果是子查询，id的序号会递增；|
-|table|被操作的对象名称，通常是表名，但有其他格式|
+|table|被操作的对象名称，通常是表名，但有其他格式，有时不是真实的表名字，可能是简称，也可能是第几步执行的结果的简称|
 |partitions|匹配的分区信息(对于非分区表值为NULL)|
 |type|关联类型或者访问类型，也可以理解成mysql是如何决定查找表中的行，查找数据行的大概范围|
 |select_type|连接操作的类型|
 |possible_keys|可能用到的索引|
 |key|key列显示MySQL实际决定使用的键（索引），必然包含在possible_keys中|
 |key_len|被优化器选定的索引键长度，单位是字节|
-|ref|表示本行被操作对象的参照对象，无参照对象为NULL|
-|rows|查询执行所扫描的元组个数（对于innodb，此值为估计值）|
+|ref|表示本行被操作对象的参照对象，无参照对象为NULL，即哪些列或常量被用于查找索引列上的值|
+|rows|查询执行所扫描的元组个数（对于innodb，此值为估计值），表示根据表统计信息及索引选用情况，估算的找到所需的记录所需要读取的行数|
 |extra|执行计划的重要补充信息，当此列出现Using filesort , Using temporary 字样时就要小心了，很可能SQL语句需要优化|
 
 ### 几个比较重要的列
+
+#### select_type 查询中每个select子句的类型
+
+- SIMPLE(简单SELECT，不使用UNION或子查询等)
+- PRIMARY(子查询中最外层查询，查询中若包含任何复杂的子部分，最外层的select被标记为PRIMARY)
+- UNION(UNION中的第二个或后面的SELECT语句)
+- DEPENDENT UNION(UNION中的第二个或后面的SELECT语句，取决于外面的查询)
+- UNION RESULT(UNION的结果，union语句中第二个select开始后面所有select)
+- SUBQUERY(子查询中的第一个SELECT，结果不依赖于外部查询)
+- DEPENDENT SUBQUERY(子查询中的第一个SELECT，依赖于外部查询)
+- DERIVED(派生表的SELECT, FROM子句的子查询)
+- UNCACHEABLE SUBQUERY(一个子查询的结果不能被缓存，必须重新评估外链接的第一行)
+
+#### possible_keys 可能用到的索引
+
+指出MySQL能使用哪个索引在表中找到记录，查询涉及到的字段上若存在索引，则该索引将被列出，但不一定被查询使用（该查询可以利用的索引，如果没有任何索引显示 null）。
+
+该列完全独立于EXPLAIN输出所示的表的次序。意味着在possible_keys中的某些键，实际上不能按生成的表次序使用。
+
+如果该列是NULL，则没有相关的索引。在这种情况下，可以通过检查WHERE子句看是否它引用某些列或适合索引的列来提高查询性能。如果是这样，创造一个适当的索引并且再次用EXPLAIN检查查询。
 
 #### key 实际决定使用的键
 
@@ -72,6 +92,8 @@ explain select now() from dual;
 #### key_len 选定的索引键长度
 
 这一列显示MySQL在索引里使用的字节数，通过这个值可以算出具体使用了索引中的那些列。
+
+可通过该列计算查询中使用的索引的长度（key_len显示的值为索引字段的最大可能长度，并非实际使用长度，即key_len是根据表定义计算而得，不是通过表内检索出的）。不损失精确性的情况下，长度越短越好。
 
 例如，film_actor的联合索引 idx_film_actor_id 由 film_id 和 actor_id 两个int列组成，并且每个int是4字节。通过结果中的key_len=4可推断出查询使用了第一个列：film_id，来执行索引查找。
 
