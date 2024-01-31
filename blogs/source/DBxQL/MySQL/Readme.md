@@ -13,6 +13,11 @@ MySQL|MariaDB
 #### 常用语句
 
 ```sql
+-- 删除表：cascade(级联)  restrict(限制)
+-- 删除所有和student表相关的对象(视图、索引、触发器等)
+delete  table student cascade;
+-- 只是删除student表
+delete table student restrict；
 -- 查看锁表：
 select * from information_schema.innodb_trx\G;
 
