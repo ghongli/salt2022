@@ -30,11 +30,11 @@
 
 二叉树的缺点：顺序插入时，会形成一个链表，查询性能大大降低；大数据量情况下，层级较深，检索速度慢。可以用红黑树来解决。
 红黑树也存在大数据量情况下，层级较深，检索速度慢的问题。
-为了解决上述问题，可以使用B-Tree结构。BTree (多路平衡查找树) 以一棵最大度数（max-degree，指一个节点的子节点个数）为5（5阶）的 b-tree 为例（每个节点最多存储4个key，5个指针）。
+为了解决上述问题，可以使用BTree结构。BTree (多路平衡查找树) 以一棵最大度数（max-degree，指一个节点的子节点个数）为5（5阶）的 btree 为例（每个节点最多存储4个key，5个指针）。
 > [演示 BTree Visualization](https://www.cs.usfca.edu/~galles/visualization/BTree.html)
 > [演示 B+Tree Visualization](https://www.cs.usfca.edu/~galles/visualization/BPlusTree.html)
 
-B+Tree、BTree 的区别：
+B+Tree相对于BTree的区别：
 - 所有的数据都会出现在叶子节点
 - 叶子节点形成一个单向链表
 
@@ -62,3 +62,122 @@ MySQL 索引数据结构对经典的 B+Tree 进行了优化。在原 B+Tree 的�
    - 相对于Hash索引，B+Tree支持范围匹配及排序操作
 
 ## 索引分类
+
+||含义|特点|关键字|
+| :--- | :--- | :--- | :--- |
+|主键索引|针对于表中主键创建的索引|默认自动创建，只能有一个|PRIMARY|
+|唯一索引|避免同一个表中某数据列中的值重复|可以有多个|UNIQUE|
+|常规索引|快速定位特定数据|可以有多个||
+|全文索引|全文索引查找的是文本中的关键词，而不是比较索引中的值|可以有多个|FULLTEXT|
+
+在InnoDB存储引擎中，根据索引的存储形式，又可以分为以下两种：
+||含义|特点|
+| :--- | :--- | :--- |
+|聚焦索引(Clustered Index)|将数据存储与索引放在一块，索引结构的叶子节点保存了行数据|必须有，而且只有一个|
+|二级索引(Secondary Index)|将数据与索引分开存储，索引结构的叶子节点关联的是对应的主键|可以存在多个|
+
+![image](https://github.com/ghongli/salt2022/assets/7960635/21ef8c2f-fc2f-45e0-a1b3-18bdcaac6c1c)
+
+聚焦索引选取规则：
+- 如果存在主键，主键索引就是聚焦索引
+- 如果不存在主键，将使用第一个唯一索引作为聚焦索引
+- 如果表没有主键或没有合适的唯一索引，则InnoDB会自动生成一个 rowid 作为隐藏的聚焦索引
+
+### 一些问题
+
+1. 参下语句，指出执行效率高的，并说明原因？
+
+   ```mysql
+   -- 备注：id为主键，name字段创建的有索引
+   select * from user where id = 10;
+   select * from user where name = 'Arm';
+   ```
+
+   第一条语句执行效率高，因为第二条语句需要回表查询，相当于两个步骤。
+
+2. InnoDB主键索引的B+Tree高度是多少？
+
+   假设一行数据大小为1k，一页中可以存储16行这样的数据。InnoDB的指针占用6个字节的空间，主键假设为bigint，占用字节数为8，可得公式：n*8+(n+1)*6=16*1024，其中8表示bigint占用的字节数，n表示当前节点存储的key的数量，(n+1)表示指针数量(比key多一个)，算出n约为1170。
+   如果树的高度为2，则能存储的数据量大概为：1170 * 16 = 18736；如果树的高度为3，则能存储的数据量大概为：1170 * 1170 * 16 = 21939856；
+   另外，如果有大量的数据，需要考虑分表、分库。
+
+## 语法
+
+```text
+创建索引：如果不加索引类型参数，则创建的是常规索引
+CREATE [ UNIQUE | FULLTEXT ] INDEX index_name ON table_name (index_col_name, ...); 
+查看索引
+SHOW INDEX FROM table_name;
+删除索引
+DROP INDEX index_name ON table_name;
+```
+
+```mysql
+-- name字段的值可能会重复，为该字段创建常规索引
+create index idx_user_name on tb_user(name);
+-- phone字段的值非空，且唯一，为该字段创建唯一索引
+create unique index idx_user_phone on tb_user (phone);
+-- 为profession, age, status创建联合索引
+create index idx_user_pro_age_stat on tb_user(profession, age, status);
+-- 为email建立合适的索引来提升查询效率
+create index idx_user_email on tb_user(email);
+-- 删除索引
+drop index idx_user_email on tb_user;
+```
+
+## 使用规则
+
+### 最左前缀法则
+
+如果索引关联了多列(联合索引)，要遵守最左前缀法则。最左前缀法则指的是查询从索引的最左列开始，并且不跳过索引中的列。如果跳跃某一列，索引将部分失效(后面的字段索引失效)。
+联合索引中，出现范围查询(<,>)，范围查询右侧的列索引失效。可以用>=、<=来规避索引失效问题。
+
+#### 索引失效情况
+
+1. 在索引列上进行运算操作：`explain select * from tb_user where substring(phone, 10, 2) = '15';`
+2. 字符串类型字段使用时，不加引号: `explain select * from tb_user where phone = 19977909915;`
+3. 模糊查询中，如果仅尾部模糊匹配(xx%)，索引不会失效；如果是头部模糊匹配(%xx)及搜索模糊匹配(%xx%)，则索引失效；如：`explain select * from tb_user where profession like '%项目';`
+4. 用or分割开的条件，如果or其中一个条件的列没有索引，则涉及的索引都不会被用到。
+5. 如果评估使用索引，比全表更慢，则不使用索引。
+
+**SQL提示**是优化数据库的一个重要手段，简单来说，就是在SQL语句中加入一些人为的提示来达到优化操作的目的。
+
+```mysql
+-- user index(xx) 使用索引
+explain select * from tb_user use index(idx_user_pro) where profession = '项目';
+-- ignore index(xx) 不使用那个索引
+explain select * from tb_user ignore index(idx_user_pro) where profession = '项目';
+-- force index(xx) 必须使用那个索引
+explain select * from tb_user force index(idx_user_pro) where profession = '项目';
+```
+
+use 是建议，实际使用那个索引，MySQL还会自己权衡运行速度去更改，force 就是无论如何都强制使用该索引。
+
+#### 覆盖索引及回表查询
+
+尽量使用覆盖索引(查询使用了索引，并且需要返回的列，在该索引中已经全部能找到)，减少 select *。
+
+
+#### 前缀索引
+
+当字段类型为字符串（varchar, text等）时，有时需要索引很长的字符串，这会让索引变得很大，查询时，浪费大量的磁盘IO，影响查询效率，此时可以只用字符串的一部分前缀，建立索引，这样可以大大节约索引空间，从而提高索引效率。
+
+`CREATE INDEX index_name ON table_name (columnn(index_col_name), ...); `
+
+前缀长度：可以根据索引的选择性来决定，而选择性是指不重复的索引值(基数)和数据表的记录总数的比值，索引选择性越高，则查询效率越高。唯一索引的选择性是1，这是最好的索引选择性，性能也是最好的。 
+
+选择性公式：
+```mysql
+select count(distinct email) / count(*) from tb_user;
+select count(distinct substring(email, 1, 5)) / count(*) from tb_user;
+```
+
+`show index from table_name;` 里的 sub_part，可以看到截取的长度。
+
+#### 单列索引及联合索引
+
+单列索引：一个索引只包含单个列；联合索引：一个索引包含了多个列；在业务场景中，如果存在多个查询条件，考虑针对于查询字段建立索引时，建议建立联合索引，而非单列索引。
+`explain select id, phone, name from tb_user where phone = '19977909915' and name = 'Arm'` 语句只会用到phone索引字段。
+
+## 注意事项
+
