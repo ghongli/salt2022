@@ -14,7 +14,9 @@
 1. 清空默认的全局 user.name, user.email
 
 ```
-git config --list
+# 查看全局配置
+git config --global --list
+# 清空默认的全局 user.name, user.email 配置
 git config --global --unset user.name
 git config --global --unset user.email
 ```
@@ -89,6 +91,9 @@ Hi user.name！ You've successfully authenticated.but github.com does not provid
 > push 时，提示邮箱地址不正确时，是有规则对提交的邮箱地址做检查，先确认commit信息中的邮箱地址，是不是正确的或对应远端需要使用的。如果有问题，就是使用`git reset --soft HEAD^`回撤。
 
 ```
+# 查看当前项目的配置
+git config --local --list
+# 设置当前项目的 user.name, user.email 配置
 git config --local user.name xxx
 git config --local user.email xxx@xxx.com
 ```
