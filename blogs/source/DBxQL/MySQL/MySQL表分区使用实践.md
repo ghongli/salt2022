@@ -37,9 +37,9 @@
       PARTITION p2 VALUES LESS THAN (2010),
       PARTITION p3 VALUES LESS THAN (2020),
       PARTITION p4 VALUES LESS THAN (MAXVALUE)
-  );
+   );
    ```
-
+   
 2. LIST 分区： 使用 LIST 分区策略时，根据一个列的离散值列表，将数据分成不同的分区。每个分区包含特定值的数据。这对于按照离散的分类或标签进行分区非常有用。
    如，按照地区进行分区：
    ```MySQL
