@@ -29,10 +29,51 @@
 分区策略决定了如何将表的数据分割成不同的分区。每个分区可以存储不同范围或类型的数据，以提高查询性能、维护灵活性和数据管理。
 提供了多种分区策略，包括：
 1. RANGE 分区：使用 RANGE 分区策略时，根据一个列的范围，将数据分成不同的分区。每个分区包含满足特定范围条件的数据。这对于按照日期、数字范围或其他连续值进行分区非常有用。
-2. LIST 分区： 使用 LIST 分区策略时，根据一个列的离散值列表，将数据分成不同的分区。每个分区包含特定值的数据。这对于按照离散的分类或标签进行分区非常有用。
-3. HASH 分区：使用 HASH 分区策略时，根据一个列的哈希值，将数据分散到不同的分区。这可以帮助均匀分布数据，适用于大量数据的情况。
-4. KEY 分区：KEY 分区策略类似于 HASH 分区，但它使用列的值的哈希，而不是列的哈希值。它对于按照非整数列进行分区很有用。
-5. 自定义分区函数：可以使用自定义的分区函数来定义分区策略，这允许根据自己的需求进行更高级的分区。
+   如，按照订单日期范围进行分区：
+   ```MySQL
+   PARTITION BY RANGE (YEAR(order_date)) (
+      PARTITION p0 VALUES LESS THAN (1990),
+      PARTITION p1 VALUES LESS THAN (2000),
+      PARTITION p2 VALUES LESS THAN (2010),
+      PARTITION p3 VALUES LESS THAN (2020),
+      PARTITION p4 VALUES LESS THAN (MAXVALUE)
+  );
+   ```
+
+3. LIST 分区： 使用 LIST 分区策略时，根据一个列的离散值列表，将数据分成不同的分区。每个分区包含特定值的数据。这对于按照离散的分类或标签进行分区非常有用。
+   如，按照地区进行分区：
+   ```MySQL
+   PARTITION BY LIST (region) (
+      PARTITION p_east VALUES IN ('East'),
+      PARTITION p_west VALUES IN ('West', 'Midwest'),
+      PARTITION p_south VALUES IN ('South'),
+      PARTITION p_other VALUES IN (DEFAULT)
+  );
+   ```
+   
+5. HASH 分区：使用 HASH 分区策略时，根据一个列的哈希值，将数据分散到不同的分区。这可以帮助均匀分布数据，适用于大量数据的情况。
+   如，使用MOD函数，进行哈希分区：
+   ```MySQL
+   PARTITION BY HASH(MOD(id, 4))
+   PARTITIONS 4;
+   ```
+   
+7. KEY 分区：KEY 分区策略类似于 HASH 分区，但它使用列的值的哈希，而不是列的哈希值。它对于按照非整数列进行分区很有用。
+   如，使用用户名的哈希进行分区：
+   ```MySQL
+   PARTITION BY KEY(username)
+   PARTITIONS 10;
+   ```
+   
+9. 自定义分区函数：可以使用自定义的分区函数来定义分区策略，这允许根据自己的需求进行更高级的分区。
+    如，自定义分区函数：
+   ```MySQL
+   PARTITION BY RANGE (custom_partition_function(column_name)) (
+        PARTITION p1 VALUES LESS THAN (100),
+        PARTITION p2 VALUES LESS THAN (200),
+        PARTITION p3 VALUES LESS THAN (300)
+   );
+   ```
 
 在选择分区策略时，要考虑数据的健在、查询需求和维护要求。不同的策略，适用于不同的情况。还要注意，一张表可以同时使用不同的分区策略，以便根据数据的不同特性来组织分区。
 分区表的设计和维护，需要谨慎计划和测试，以确保性能提升并满足数据管理需求。在使用分区表时，要定期监控性能并考虑备份和维护策略，以确保系统稳定运行。
