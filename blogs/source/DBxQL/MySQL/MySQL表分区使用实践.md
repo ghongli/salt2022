@@ -48,7 +48,7 @@
       PARTITION p_west VALUES IN ('West', 'Midwest'),
       PARTITION p_south VALUES IN ('South'),
       PARTITION p_other VALUES IN (DEFAULT)
-  );
+   );
    ```
    
 3. HASH 分区：使用 HASH 分区策略时，根据一个列的哈希值，将数据分散到不同的分区。这可以帮助均匀分布数据，适用于大量数据的情况。
