@@ -124,25 +124,33 @@
 
 14. 如何优化DISTINCT？
     
-    DISTINCT在所有列上转换为GROUP BY，并与ORDER BY子句结合使用。
+    DISTINCT需要数据库对结果集进行额外的排序和去重操作，可能会导致查询性能下降；
 
-15. 表A中，如何显示前50行？
+    使用GROUP BY替代，更高效的处理分组，并与ORDER BY子句结合使用。
+
+    避免在包含复杂表达式或函数的列上使用DISTINCT，因为这样通常无法利用索引。
+
+    将DISTINCT应用在子查询上，而不是整个查询结果集上；
+
+    将DISTINCT结果存储在临时表中，然后从临时表中查询，可能比在原查询中直接使用DISTINCT更高效；
+
+16. 表A中，如何显示前50行？
     
     SELECT * FROM A LIMIT 0,50;
 
-16. BLOB和TEXT有什么区别？
+17. BLOB和TEXT有什么区别？
     
     BLOB是一个二进制对象，可以容纳可变数量的数据。TEXT是一个不区分大小写的BLOB。
   
     BLOB和TEXT类型之间的唯一区别在于对BLOB值进行排序和比较时区分大小写，对TEXT值不区分大小写。
 
-17. LIKE声明中的％和_是什么意思？
+18. LIKE声明中的％和_是什么意思？
     
     ％对应于0个或更多字符，_只是LIKE语句中的一个字符。
 
-18. 查看表A中的所有索引：show index from A;
+19. 查看表A中的所有索引：show index from A;
 
-19. CHAR和VARCHAR的区别？
+20. CHAR和VARCHAR的区别？
     
     1.CHAR和VARCHAR类型在存储和检索方面有所不同
 
